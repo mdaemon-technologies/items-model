@@ -10,13 +10,13 @@ The "items-model" provides basic methods for manipulating an array of objects ba
 
 # Node CommonJS #
 ```javascript
-    const ItemsModel = require("@mdaemon/items-model");
+    const ItemsModel = require("@mdaemon/items-model/dist/items-model.cjs");
 ```
 
 # Node Modules #
 
 ```javascript
-    import ItemsModel from "@mdaemon/items-model";  
+    import ItemsModel from "@mdaemon/items-model/dist/items-model.mjs";  
 ```
 
 # Web #
@@ -76,7 +76,7 @@ The "items-model" provides basic methods for manipulating an array of objects ba
   // gets the internal items array
   carsModel.getAll(); // [Car]
 
-  // gets all the ids form the items array
+  // gets all the ids from the items array
   carsModel.getAllIds();
 
   // gets a copy of the internal items array, so that manipulation of the items in the array do not impact the internal array
@@ -94,7 +94,7 @@ The "items-model" provides basic methods for manipulating an array of objects ba
   carsModel.getByAttribute("make", "Honda"); // Car
   carsModel.getByAttribute("model", "Odyssey"); // null
 
-  // gets all the items from the internal array base on an attribute/value combination
+  // gets all the items from the internal array based on an attribute/value combination
   carsModel.getAllByAttribute("make", "Honda"); // [Car]
   carsModel.getAllByAttribute("model", "Odyssey"); // []
 
