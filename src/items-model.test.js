@@ -69,6 +69,14 @@ describe("ItemsModel tests", () => {
     });
   });
 
+  describe("ItemsModel has method upsert", () => {
+    expect(typeof basic.upsert).toBe("function");
+
+    it("is an alias of insert", () => {
+      expect(basic.insert).toBe(basic.upsert);
+    });
+  });
+
   describe("ItemsModel has method update", () => {
     expect(typeof basic.update).toBe("function");
 
@@ -99,7 +107,7 @@ describe("ItemsModel tests", () => {
   describe("ItemsModel has method remove", () => {
     expect(typeof basic.remove).toBe("function");
 
-    it("removes and item from the items array by the id", () => {
+    it("removes an item from the items array by the id", () => {
       basic.add(temp[0]);
 
       expect(basic.getById(1) instanceof Constructor).toBe(true);

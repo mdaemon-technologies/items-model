@@ -1,7 +1,7 @@
 {
   "name": "@mdaemon/items-model",
   "type": "module",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A basic items manipulation model",
   "main": "dist/items-model.cjs.js",
   "module": "dist/items-model.mjs.js",
