@@ -1,4 +1,4 @@
-import Emitter from "@mdaemon/emitter";
+import Emitter from "@mdaemon/emitter/dist/emitter.mjs";
 import { is, updateProps } from "./utils";
 
 const isValidID = (id) => {

@@ -1,1 +1,538 @@
-"use strict";const t=function(t){return"string"==typeof t},e=function(t){return"function"==typeof t};function r(t,e,r){this.name=t,this.id=e,this.func=r}function n(){const n=[],i=[],s=(t,e)=>{let r=n.length;for(;r;)if(r-=1,n[r].name===t&&n[r].id===e)return r;return-1};this.register=(i,u,l)=>{const o=i;let f=l,h=u;if(e(h))if(t(f)){const t=f;f=h,h=t}else f=u,h="all";if(!o)return;const c=s(o,h),g=new r(o,h,f);-1===c?n.push(g):n[c]=g},this.on=this.register,this.subscribe=this.register,this.once=(t,e)=>{if(!t)return;const n=new r(t,"",e);i.push(n)},this.onMany=(t,e)=>{e&&Object.keys(e).forEach((r=>{this.on(r,t,e[r])}))},this.unregister=(t,e)=>{if(!t)return;let r=0;if("all"!==(e||"all"))for(r=s(t,e),-1!==r&&n.splice(r,1),r=i.length;r;)r-=1,i[r].name===t&&i.splice(r,1);else for(r=n.length;r;)r-=1,"all"===n[r].id&&n.splice(r,1)},this.off=this.unregister,this.unsubscribe=this.unregister,this.offAll=t=>{let e=n.length;for(;e;)e-=1,n[e].id===t&&n.splice(e,1)},this.trigger=(t,e)=>{const r=(t=>{const e=[];for(let r=0,i=n.length;r<i;r+=1)n[r].name===t&&e.push(n[r]);return e})(t);for(let n=0,i=r.length;n<i;n+=1)r[n].func(e,t);let s=i.length;for(;s;)s-=1,i[s].name===t&&(i[s].func(e,t),i.splice(s,1))},this.emit=this.trigger,this.publish=this.trigger,this.propagate=(t,e)=>{this.trigger(e,t)},this.isRegistered=(t,e)=>{let r=n.length;for(;r;)if(r-=1,n[r].id===e&&n[r].name===t)return!0;return!1}}const i=(t,e)=>{let r=!1;for(var n in e)if(s.object(t[n]))r=i(t[n],e[n]);else if(s.array(t[n]))for(var u=0,l=e[n].length;u<l;u++)s.object(t[n][u])?r=i(t[n][u],e[n][u]):t[n][u]!==e[n][u]&&(t[n][u]=e[n][u],r=!0);else t[n]!==e[n]&&(t[n]=e[n],r=!0);return r},s={object:t=>"object"==typeof t&&null!==t,number:t=>"number"==typeof t,string:t=>"string"==typeof t,array:t=>Array.isArray(t),undef:t=>void 0===t},u=t=>s.number(t)||s.string(t);module.exports=function(t){const e=this;Object.assign(this,new n);const r=t.itemConstructor;let l=!1;u(r.prototype.id)||(r.prototype.id=-1,l=!0);const o=()=>{let t=h.length;return e.getAllIds().reduce(((t,e)=>Math.max(t,e)),t)},f=t.itemName;this.getName=function(){return f};const h=[];this.clear=function(){h.splice(0,h.length)},this.add=function(t){return!!s.object(t)&&(t=new r(t),l&&-1===t.id&&(t.id=o()),h.push(t),!0)},this.getAll=function(){return h},this.getAllIds=function(){return h.map((t=>t.id))},this.getCopies=function(){return h.map((t=>new r(t)))},this.getById=function(t){return e.getByAttribute("id",t)},this.getIndex=function(t){if(!u(t))return!1;let e=h.length;for(;e--;)if(t===h[e].id)return e;return-1};const c=(t,e)=>{if(-1!==e.indexOf(".")){let r=e.split(".").filter((t=>!!t.trim())),n={...t};for(let t=0,e=r.length;t<e;t++)n=n[r[t]];return n}return t[e]};this.getByAttribute=function(t,e){if(!s.string(t)||s.undef(e))return null;let r=h.length;for(;r--;){if(e===c(h[r],t))return h[r]}return null},this.getAllByAttribute=function(t,e){let r=[];if(!s.string(t)||s.undef(e))return r;for(var n=0,i=h.length;n<i;n++){e===c(h[n],t)&&r.push(h[n])}return r},this.setAttributes=function(t,r){if(!u(t)||!s.object(r))return!1;if(s.string(t)&&!t.trim())return!1;let n=e.getById(t);return null!==n&&i(n,r)},this.insert=function(t,n){if(!u(t)||!s.array(n))return!1;let i=e.getIndex(t);if(-1===i)return!1;let f=[];for(let t=0,r=n.length;t<r;t++)e.update(n[t])||f.push(n[t]);return f.forEach(((t,e)=>{t=new r(t),l&&-1===t.id&&(t.id=o()),h.splice(i+1+e,0,t)})),!0},this.upsert=this.insert,this.update=function(t){if(!s.object(t)||!u(t.id))return!1;if(-1===e.getIndex(t.id))return!1;let r=h.length;for(;r--;)if(h[r].id===t.id&&i(h[r],t))return e.emit(`updated-${f}-${t.id}`,t),!0;return!1},this.remove=function(t){if(!u(t))return!1;let e=h.length;for(;e--;)if(h[e].id===t)return h.splice(e,1),!0;return!1}};
+'use strict';
+
+/*
+*    Copyright (C) 1998-2022  MDaemon Technologies, Ltd.
+*
+*    This library is free software; you can redistribute it and/or
+*    modify it under the terms of the GNU Lesser General Public
+*    License as published by the Free Software Foundation; either
+*    version 2.1 of the License, or (at your option) any later version.
+*
+*    This library is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+*    Lesser General Public License for more details.
+*
+*    You should have received a copy of the GNU Lesser General Public
+*    License along with this library; if not, write to the Free Software
+*    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+*    USA
+*/
+
+const is$1 = (function () {
+  var isObject = function (val) {
+    return typeof val === "object" && val !== null && !Array.isArray(val);
+  };
+
+  var isString = function (str) {
+    return typeof str === "string";
+  };
+
+  var isArray = function (arr) {
+    return Array.isArray(arr);
+  };
+
+  var isBoolean = function (bool) {
+    return typeof bool === "boolean";
+  };
+
+  var isNumber = function (num) {
+    return typeof num === "number";
+  };
+
+  var isFunction = function (func) {
+    return typeof func === "function";
+  };
+
+  var isNull = function (val) {
+    return val === null;
+  };
+
+  var isUndefined = function (val) {
+    return val === undefined || typeof val === "undefined";
+  };
+
+  return {
+    string: isString,
+    object: isObject,
+    array: isArray,
+    bool: isBoolean,
+    number: isNumber,
+    func: isFunction,
+    nul: isNull,
+    undef: isUndefined
+  };
+}());
+
+/*
+*    Copyright (C) 1998-2022  MDaemon Technologies, Ltd.
+*
+*    This library is free software; you can redistribute it and/or
+*    modify it under the terms of the GNU Lesser General Public
+*    License as published by the Free Software Foundation; either
+*    version 2.1 of the License, or (at your option) any later version.
+*
+*    This library is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+*    Lesser General Public License for more details.
+*
+*    You should have received a copy of the GNU Lesser General Public
+*    License along with this library; if not, write to the Free Software
+*    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+*    USA
+*/
+
+function Event(name, id, func) {
+  this.name = name;
+  this.id = id;
+  this.func = func;
+}
+
+function Emitter() {
+  const events = [];
+  const oneTime = [];
+
+  const getEventIndex = (name, id) => {
+    let idx = events.length;
+    while (idx) {
+      idx -= 1;
+      if (events[idx].name === name && events[idx].id === id) {
+        return idx;
+      }
+    }
+
+    return -1;
+  };
+
+  const getEvents = (name) => {
+    const evs = [];
+    for (let idx = 0, iMax = events.length; idx < iMax; idx += 1) {
+      if (events[idx].name === name) {
+        evs.push(events[idx]);
+      }
+    }
+
+    return evs;
+  };
+
+  this.register = (name, id, func) => {
+    const eventName = name;
+    let callback = func;
+    let eventId = id;
+    if (is$1.func(eventId)) {
+      if (is$1.string(callback)) {
+        const temp = callback;
+        callback = eventId;
+        eventId = temp;
+      } else {
+        callback = id;
+        eventId = 'all';
+      }
+    }
+
+    if (!eventName) {
+      return;
+    }
+
+    const idx = getEventIndex(eventName, eventId);
+    const ev = new Event(eventName, eventId, callback);
+    if (idx === -1) {
+      events.push(ev);
+    } else {
+      events[idx] = ev;
+    }
+  };
+
+  this.on = this.register;
+  this.subscribe = this.register;
+
+  this.once = (name, func) => {
+    if (!name) {
+      return;
+    }
+
+    const ev = new Event(name, '', func);
+    oneTime.push(ev);
+  };
+
+  this.onMany = (id, obj) => {
+    if (!obj) {
+      return;
+    }
+
+    Object.keys(obj).forEach((key) => {
+      this.on(key, id, obj[key]);
+    });
+  };
+
+  this.unregister = (name, id) => {
+    const eventId = !id ? 'all' : id;
+
+    if (!name) {
+      return;
+    }
+
+    let idx = 0;
+
+    if (eventId === 'all') {
+      idx = events.length;
+      while (idx) {
+        idx -= 1;
+        if (events[idx].id === 'all') {
+          events.splice(idx, 1);
+        }
+      }
+
+      idx = oneTime.length;
+      while (idx) {
+        idx -= 1;
+        if (oneTime[idx].name === name) {
+          oneTime.splice(idx, 1);
+        }
+      }
+
+      return;
+    }
+
+    idx = getEventIndex(name, id);
+    if (idx !== -1) {
+      events.splice(idx, 1);
+    }
+  };
+
+  this.off = this.unregister;
+  this.unsubscribe = this.unregister;
+
+  this.offAll = (id) => {
+    let idx = events.length;
+    while (idx) {
+      idx -= 1;
+      if (events[idx].id === id) {
+        events.splice(idx, 1);
+      }
+    }
+  };
+
+  this.trigger = (name, data) => {
+    const evs = getEvents(name);
+    for (let idx = 0, iMax = evs.length; idx < iMax; idx += 1) {
+      evs[idx].func(data, name);
+    }
+
+    let idx = oneTime.length;
+    while (idx) {
+      idx -= 1;
+      if (oneTime[idx].name === name) {
+        oneTime[idx].func(data, name);
+        oneTime.splice(idx, 1);
+      }
+    }
+  };
+
+  this.emit = this.trigger;
+  this.publish = this.trigger;
+
+  this.propagate = (data, name) => {
+    this.trigger(name, data);
+  };
+
+  this.isRegistered = (name, id) => {
+    const eventId = !id ? 'all' : id;
+
+    let idx = events.length;
+    while (idx) {
+      idx -= 1;
+      if (events[idx].id === eventId && events[idx].name === name) {
+        return true;
+      }
+    }
+
+    idx = oneTime.length;
+    while (idx) {
+      idx -= 1;
+      if (oneTime[idx].name === name) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+}
+
+const updateProps = (a, b) => {
+  let changed = false;
+  for (var prop in b) {
+    if (is.object(a[prop])) {
+      changed = updateProps(a[prop], b[prop]);
+    }
+    else if (is.array(a[prop])) {
+      for (var i = 0, iMax = b[prop].length; i < iMax; i++) {
+        if (is.object(a[prop][i])) {
+          changed = updateProps(a[prop][i], b[prop][i]);
+        }
+        else if (a[prop][i] !== b[prop][i]) {
+          a[prop][i] = b[prop][i];
+          changed = true;
+        }
+      }
+    }
+    else if (a[prop] !== b[prop]) {
+      a[prop] = b[prop];
+      changed = true;
+    }
+  }
+
+  return changed;
+};
+
+const is = (function () {
+  const obj = (a) => {
+    return typeof a === "object" && a !== null;
+  };
+
+  const num = (a) => {
+    return typeof a === "number";
+  };
+
+  const str = (a) => {
+    return typeof a === "string";
+  };
+
+  const arr = (a) => {
+    return Array.isArray(a);
+  };
+
+  const undef = (a) => {
+    return typeof a === "undefined";
+  };
+
+  return {
+    object: obj,
+    number: num,
+    string: str,
+    array: arr,
+    undef
+  };
+}());
+
+const isValidID = (id) => {
+  return is.number(id) || is.string(id);
+};
+
+function ItemsModel(config) {
+  const self = this;
+  Object.assign(this, new Emitter());
+
+  const ItemConstructor = config.itemConstructor;
+  let needsId = false;
+  if (!isValidID(ItemConstructor.prototype.id)) {
+    ItemConstructor.prototype.id = -1;
+    needsId = true;
+  }
+
+  const genId = () => {
+    let id = items.length;
+    return self.getAllIds().reduce((initial, i) => {
+      return Math.max(initial, i);
+    }, id);
+  };
+
+  const itemName = config.itemName;
+  this.getName = function () {
+    return itemName;
+  };
+
+  const items = [];
+
+  this.clear = function () {
+    items.splice(0, items.length);
+  };
+
+  this.add = function (item) {
+    if (!is.object(item)) {
+      return false;
+    }
+
+    item = new ItemConstructor(item);
+    if (needsId) {
+      if (item.id === -1) {
+        item.id = genId();
+      }
+    }
+
+    items.push(item);
+
+    return true;
+  };
+  
+  this.getAll = function () {
+    return items;
+  };
+
+  this.getAllIds = function () {
+    return items.map(item => {
+      return item.id;
+    });
+  };
+
+  this.getCopies = function () {
+    return items.map(item => {
+      return new ItemConstructor(item);
+    });
+  };
+
+  this.getById = function (id) {
+    return self.getByAttribute("id", id);
+  };
+
+  this.getIndex = function (id) {
+    if (!isValidID(id)) {
+      return false;
+    }
+
+    let i = items.length;
+    while (i--) {
+      if (id === items[i].id) {
+        return i;
+      }
+    }
+
+    return -1;
+  };
+
+  const getAttributeValue = (obj, attr) => {
+    if (attr.indexOf(".") !== -1) {
+      let attrs = attr.split(".").filter(str => !!str.trim());
+      let val = { ...obj };
+
+      for (let i = 0, iMax = attrs.length; i < iMax; i++) {
+        val = val[attrs[i]];
+      }
+
+      return val;
+    }
+
+    return obj[attr];
+  };
+
+  this.getByAttribute = function (attr, val) {
+    if (!is.string(attr) || is.undef(val)) {
+      return null;
+    }
+
+    let i = items.length;
+    while (i--) {
+      let propVal = getAttributeValue(items[i], attr);
+      if (val === propVal) {
+        return items[i];
+      }
+    }
+
+    return null;
+  };
+
+  this.getAllByAttribute = function (attr, val) {
+    let arr = [];
+    if (!is.string(attr) || is.undef(val)) {
+      return arr;
+    }
+
+    for (var i = 0, iMax = items.length; i < iMax; i++) {
+      let propVal = getAttributeValue(items[i], attr);
+      if (val === propVal) {
+        arr.push(items[i]);
+      }
+    }
+
+    return arr;
+  };
+
+  this.setAttributes = function (id, obj) {
+    if (!isValidID(id) || !is.object(obj)) {
+      return false;
+    }
+
+    if (is.string(id) && !id.trim()) {
+      return false;
+    }
+
+    let item = self.getById(id);
+    if (item === null) {
+      return false;
+    }
+
+    return updateProps(item, obj);
+  };
+
+  this.insert = function (parent, insertItems) {
+    if (!isValidID(parent) || !is.array(insertItems)) {
+      return false;
+    }
+
+    let parentIndex = self.getIndex(parent);
+    if (parentIndex === -1) {
+      return false;
+    }
+
+    let insertThese = [];
+    for (let i = 0, iMax = insertItems.length; i < iMax; i++) {
+      if (!self.update(insertItems[i])) {
+        insertThese.push(insertItems[i]);
+      }
+    }
+
+    insertThese.forEach((item, idx) => {
+      item = new ItemConstructor(item);
+      if (needsId) {
+        if (item.id === -1) {
+          item.id = genId();
+        }
+      }
+
+      items.splice(parentIndex + 1 + idx, 0, item);
+    });
+
+    return true;
+  };
+
+  this.upsert = this.insert;
+
+  this.update = function (item) {
+    if (!is.object(item) || !isValidID(item.id)) {
+      return false;
+    }
+
+    if (self.getIndex(item.id) === -1) {
+      return false;
+    }
+
+    let i = items.length;
+    while (i--) {
+      if (items[i].id === item.id && updateProps(items[i], item)) {
+        self.emit(`updated-${itemName}-${item.id}`, item);
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  this.remove = function (id) {
+    if (!isValidID(id)) {
+      return false;
+    }
+
+    let i = items.length;
+    while (i--) {
+      if (items[i].id === id) {
+        items.splice(i, 1);
+        return true;
+      }
+    }
+
+    return false;
+  };
+}
+
+module.exports = ItemsModel;

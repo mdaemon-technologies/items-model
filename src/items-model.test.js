@@ -102,6 +102,18 @@ describe("ItemsModel tests", () => {
       expect(basic.update({ id: 1, name: "test1" })).toBe(false);
       basic.clear();
     });
+
+    it("emits an updated-constructor-1 event when item with id 1 is updated", done => {
+      basic.add(temp[0]);
+
+      const updatedItem = { id: 1, name: "Update Test" };
+      basic.once("updated-constructor-1", item => {
+        expect(item).toEqual(updatedItem);
+        done();
+      });
+
+      basic.update(updatedItem);
+    });
   });
 
   describe("ItemsModel has method remove", () => {

@@ -1,4 +1,3 @@
-import { terser } from 'rollup-plugin-terser';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 
@@ -7,14 +6,13 @@ export default [
   {
     input: 'src/items-model.js',
     output: {
-      name: 'emitter',
+      name: 'items-model',
       file: "dist/items-model.umd.js",
       format: 'umd'
     },
     plugins: [
       nodeResolve(),
-      commonjs(),
-      terser()
+      commonjs()
     ]
   },
   {
@@ -24,8 +22,7 @@ export default [
       { file: "dist/items-model.mjs", format: 'es' }
     ],
     plugins: [
-      nodeResolve(),
-      terser()
+      nodeResolve()
     ]
   },
 ]
