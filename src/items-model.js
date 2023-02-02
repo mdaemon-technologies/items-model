@@ -61,10 +61,19 @@ export default function ItemsModel(config) {
     });
   };
 
+  const copy = (function () { 
+    return !!window && window.structuredClone ? structuredClone : (item) => { return Object.assign({}, item); };
+  }());
+
   this.getCopies = function () {
     return items.map(item => {
-      return new ItemConstructor(item);
+      return copy(item);
     });
+  };
+
+  this.getCopy = function (id) {
+    let item = self.getByAttribute("id", id);
+    return !item ? item : copy(item);
   };
 
   this.getById = function (id) {

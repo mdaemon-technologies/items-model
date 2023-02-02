@@ -82,6 +82,10 @@ The "items-model" provides basic methods for manipulating an array of objects ba
   // gets a copy of the internal items array, so that manipulation of the items in the array do not impact the internal array
   carsModel.getCopies(); // [Car]
 
+  // gets a copy of the requested item by id, so that manipulation of the item does not impact the internal item
+  carsModel.getCopy(0); // Car
+  carsModel.getCopy(1); // null
+
   // gets an item from the internal items array based on the id
   carsModel.getById(0); // Car
   carsModel.getById(1); // null

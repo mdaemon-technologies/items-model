@@ -264,32 +264,6 @@
     };
   }
 
-  const updateProps = (a, b) => {
-    let changed = false;
-    for (var prop in b) {
-      if (is.object(a[prop])) {
-        changed = updateProps(a[prop], b[prop]);
-      }
-      else if (is.array(a[prop])) {
-        for (var i = 0, iMax = b[prop].length; i < iMax; i++) {
-          if (is.object(a[prop][i])) {
-            changed = updateProps(a[prop][i], b[prop][i]);
-          }
-          else if (a[prop][i] !== b[prop][i]) {
-            a[prop][i] = b[prop][i];
-            changed = true;
-          }
-        }
-      }
-      else if (a[prop] !== b[prop]) {
-        a[prop] = b[prop];
-        changed = true;
-      }
-    }
-
-    return changed;
-  };
-
   const is = (function () {
     const obj = (a) => {
       return typeof a === "object" && a !== null;
@@ -319,6 +293,36 @@
       undef
     };
   }());
+
+  const updateProps = (a, b) => {
+    let changed = false;
+    if (!is.object(a) || !is.object(b)) {
+      return false;
+    }
+    
+    Object.keys(b).forEach(prop => {
+      if (is.object(a[prop])) {
+        changed = updateProps(a[prop], b[prop]);
+      }
+      else if (is.array(a[prop]) && is.array(b[prop])) {
+        for (var i = 0, iMax = b[prop].length; i < iMax; i++) {
+          if (is.object(a[prop][i])) {
+            changed = updateProps(a[prop][i], b[prop][i]);
+          }
+          else if (a[prop][i] !== b[prop][i]) {
+            a[prop][i] = b[prop][i];
+            changed = true;
+          }
+        }
+      }
+      else if (a[prop] !== b[prop]) {
+        a[prop] = b[prop];
+        changed = true;
+      }
+    });
+
+    return changed;
+  };
 
   const isValidID = (id) => {
     return is.number(id) || is.string(id);
@@ -380,10 +384,19 @@
       });
     };
 
+    const copy = (function () { 
+      return !!window && window.structuredClone ? structuredClone : (item) => { return Object.assign({}, item); };
+    }());
+
     this.getCopies = function () {
       return items.map(item => {
-        return new ItemConstructor(item);
+        return copy(item);
       });
+    };
+
+    this.getCopy = function (id) {
+      let item = self.getByAttribute("id", id);
+      return !item ? item : copy(item);
     };
 
     this.getById = function (id) {

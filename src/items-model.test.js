@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 const ItemsModel = require("../dist/items-model.cjs");
 
 describe("ItemsModel tests", () => {
@@ -241,6 +245,20 @@ describe("ItemsModel tests", () => {
       expect(basic.getCopies().length).toBe(2);
       expect(basic.getCopies()).toEqual(basic.getAll());
       expect(basic.getCopies()).not.toBe(basic.getAll());
+
+      basic.clear();
+    });
+  });
+
+  describe("ItemsModel has method getCopy", () => {
+    expect(typeof basic.getCopy).toBe("function");
+
+    it("retrieves a copy of a specific items in the items array", () => {
+      basic.add(temp2[0]);
+      basic.add(temp2[1]);
+
+      expect(basic.getCopy(3)).toEqual(temp2[0]);
+      expect(basic.getCopy(4)).toEqual(temp2[1]);
 
       basic.clear();
     });
