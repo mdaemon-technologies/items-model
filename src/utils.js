@@ -58,5 +58,8 @@ const updateProps = (a, b) => {
   return changed;
 };
 
+const isValidID = (id) => {
+  return is.number(id) || is.string(id);
+};
 
-export { is, updateProps };
+export { is, updateProps, isValidID };

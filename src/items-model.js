@@ -1,9 +1,5 @@
 import Emitter from "@mdaemon/emitter/dist/emitter.mjs";
-import { is, updateProps } from "./utils";
-
-const isValidID = (id) => {
-  return is.number(id) || is.string(id);
-};
+import { is, updateProps, isValidID } from "./utils";
 
 export default function ItemsModel(config) {
   const self = this;
@@ -28,10 +24,11 @@ export default function ItemsModel(config) {
     return itemName;
   };
 
-  const items = [];
+  const items = new Map();
+  const indexes = new Map();
 
   this.clear = function () {
-    items.splice(0, items.length);
+    items.clear();
   };
 
   this.add = function (item) {
@@ -46,19 +43,20 @@ export default function ItemsModel(config) {
       }
     }
 
-    items.push(item);
+    items.set(item.id, item);
+    self.emit(`added-${itemName}`, item);
 
+    const index = items.size - 1;
+    indexes.set(item.id, index);
     return true;
   };
   
   this.getAll = function () {
-    return items;
+    return Array.from(items.values());
   };
 
   this.getAllIds = function () {
-    return items.map(item => {
-      return item.id;
-    });
+    return Array.from(items.keys()).filter(key => is.string(key) || is.number(key));
   };
 
   const copy = (function () { 
@@ -66,37 +64,29 @@ export default function ItemsModel(config) {
   }());
 
   this.getCopies = function () {
-    return items.map(item => {
+    return self.getAll().map(item => {
       return copy(item);
     });
   };
 
   this.getCopy = function (id) {
-    let item = self.getByAttribute("id", id);
+    let item = items.get(id);
     return !item ? item : copy(item);
   };
 
   this.getById = function (id) {
-    return self.getByAttribute("id", id);
+    return items.get(id) || null;
   };
 
   this.getIndex = function (id) {
     if (!isValidID(id)) {
       return false;
     }
-
-    let i = items.length;
-    while (i--) {
-      if (id === items[i].id) {
-        return i;
-      }
-    }
-
-    return -1;
+    return indexes.get(id) || -1;
   };
 
   const getAttributeValue = (obj, attr) => {
-    if (attr.indexOf(".") !== -1) {
+    if (attr.includes(".")) {
       let attrs = attr.split(".").filter(str => !!str.trim());
       let val = { ...obj };
 
@@ -115,11 +105,10 @@ export default function ItemsModel(config) {
       return null;
     }
 
-    let i = items.length;
-    while (i--) {
-      let propVal = getAttributeValue(items[i], attr);
-      if (val === propVal) {
-        return items[i];
+    for (let item of items.values()) {
+      let propVal = getAttributeValue(item, attr);
+      if (propVal === val) {
+        return item;
       }
     }
 
@@ -132,10 +121,10 @@ export default function ItemsModel(config) {
       return arr;
     }
 
-    for (var i = 0, iMax = items.length; i < iMax; i++) {
-      let propVal = getAttributeValue(items[i], attr);
+    for (let item of items.values()) {
+      let propVal = getAttributeValue(item, attr);
       if (val === propVal) {
-        arr.push(items[i]);
+        arr.push(item);
       }
     }
 
@@ -156,7 +145,13 @@ export default function ItemsModel(config) {
       return false;
     }
 
-    return updateProps(item, obj);
+    if (updateProps(item, obj)){
+      items.set(item.id, item);
+      self.emit(`set-${itemName}-${item.id}`, item);
+      return true;
+    }
+
+    return false;
   };
 
   this.insert = function (parent, insertItems) {
@@ -176,15 +171,30 @@ export default function ItemsModel(config) {
       }
     }
 
+    const arr = Array.from(items.values());
     insertThese.forEach((item, idx) => {
       item = new ItemConstructor(item);
-      if (needsId) {
-        if (item.id === -1) {
-          item.id = genId();
-        }
+      if (needsId && item.id === -1) {
+        item.id = genId();
       }
 
-      items.splice(parentIndex + 1 + idx, 0, item);
+      arr.splice(parentIndex + 1 + idx, 0, item);
+      self.emit(`inserted-${itemName}-${item.id}`, item);
+
+      const insertIndex = parentIndex + 1 + idx;
+      indexes.set(item.id, insertIndex);
+
+      indexes.forEach((value, key) => {
+        if (value >= insertIndex) {
+          indexes.set(key, value + 1);
+        }
+      });
+    });
+
+    items.clear();
+
+    arr.forEach(item => {
+      items.set(item.id, item);
     });
 
     return true;
@@ -201,12 +211,11 @@ export default function ItemsModel(config) {
       return false;
     }
 
-    let i = items.length;
-    while (i--) {
-      if (items[i].id === item.id && updateProps(items[i], item)) {
-        self.emit(`updated-${itemName}-${item.id}`, item);
-        return true;
-      }
+    let oldItem = self.getById(item.id);
+    if (updateProps(oldItem, item)) {
+      items.set(item.id, oldItem);
+      self.emit(`updated-${itemName}-${item.id}`, oldItem);
+      return true;
     }
 
     return false;
@@ -217,12 +226,18 @@ export default function ItemsModel(config) {
       return false;
     }
 
-    let i = items.length;
-    while (i--) {
-      if (items[i].id === id) {
-        items.splice(i, 1);
-        return true;
-      }
+    if (items.delete(id)) {
+      self.emit(`removed-${itemName}-${id}`);
+
+      const removedIndex = indexes.get(id);
+      indexes.forEach(index => {
+        if (index >= removedIndex) {
+          indexes.set(index, index - 1);
+        }
+      });
+
+      indexes.delete(id);
+      return true;
     }
 
     return false;

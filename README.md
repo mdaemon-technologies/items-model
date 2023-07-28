@@ -1,4 +1,4 @@
-# @mdaemon/items-model, A basic items array model library with TypeScript support
+# @mdaemon/items-model, A basic items Map model library with TypeScript support
 ### Includes MDaemon's Emitter library as a dependency
 [ [@mdaemon/items-model on npm](https://www.npmjs.com/package/@mdaemon/items-model "npm") ]
 
@@ -67,26 +67,26 @@ The "items-model" provides basic methods for manipulating an array of objects ba
   // returns the name set for the model items
   carsModel.getName(); // "Car";
 
-  // empties the internal items array
+  // empties the internal items Map
   carsModel.clear(); 
     
-  // adds a new Car to the items array with only the config object
+  // adds a new Car to the items Map with only the config object
   carsModel.add({ make: "Honda", model: "Element", color: "gray" });
 
-  // gets the internal items array
+  // gets the internal items Map
   carsModel.getAll(); // [Car]
 
-  // gets all the ids from the items array
+  // gets all the ids from the items Map
   carsModel.getAllIds();
 
-  // gets a copy of the internal items array, so that manipulation of the items in the array do not impact the internal array
+  // gets a copy of the internal items Map, so that manipulation of the items in the array do not impact the internal array
   carsModel.getCopies(); // [Car]
 
   // gets a copy of the requested item by id, so that manipulation of the item does not impact the internal item
   carsModel.getCopy(0); // Car
   carsModel.getCopy(1); // null
 
-  // gets an item from the internal items array based on the id
+  // gets an item from the internal items Map based on the id
   carsModel.getById(0); // Car
   carsModel.getById(1); // null
 
@@ -94,7 +94,7 @@ The "items-model" provides basic methods for manipulating an array of objects ba
   carsModel.getIndex(0); // 0
   carsModel.getIndex(1); // -1
 
-  // gets the first item from the internal items array based on an attribute/value combination
+  // gets the first item from the internal items Map based on an attribute/value combination
   carsModel.getByAttribute("make", "Honda"); // Car
   carsModel.getByAttribute("model", "Odyssey"); // null
 
@@ -118,7 +118,7 @@ The "items-model" provides basic methods for manipulating an array of objects ba
   // returns success true or false
   carsModel.update({ id: 1, make: "Toyota", model: "Camry", color: "brown" }); // true
   
-  // removes the item from the internal items array based on the id
+  // removes the item from the internal items Map based on the id
   // returns success true or false
   carsModel.remove(1); // true
   carsModel.remove(2); // false
