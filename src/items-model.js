@@ -1,5 +1,5 @@
 import Emitter from "@mdaemon/emitter/dist/emitter.mjs";
-import { is, updateProps, isValidID } from "./utils";
+import { is, updateProps } from "./utils";
 
 export default function ItemsModel(config) {
   const self = this;
@@ -7,7 +7,7 @@ export default function ItemsModel(config) {
 
   const ItemConstructor = config.itemConstructor;
   let needsId = false;
-  if (!isValidID(ItemConstructor.prototype.id)) {
+  if (!is.validID(ItemConstructor.prototype.id)) {
     ItemConstructor.prototype.id = -1;
     needsId = true;
   }
@@ -29,6 +29,13 @@ export default function ItemsModel(config) {
 
   this.clear = function () {
     items.clear();
+    indexes.clear();
+  };
+
+  const indexItem = (id, idx) => {
+    const index = idx || items.size - 1;
+    indexes.set(id, index);
+    self.emit(`indexed-${itemName}`, `id: ${id}, index: ${index}`);
   };
 
   this.add = function (item) {
@@ -45,9 +52,8 @@ export default function ItemsModel(config) {
 
     items.set(item.id, item);
     self.emit(`added-${itemName}`, item);
-
-    const index = items.size - 1;
-    indexes.set(item.id, index);
+    indexItem(item.id);
+    
     return true;
   };
   
@@ -79,10 +85,12 @@ export default function ItemsModel(config) {
   };
 
   this.getIndex = function (id) {
-    if (!isValidID(id)) {
-      return false;
+    if (!is.validID(id)) {
+      return -1;
     }
-    return indexes.get(id) || -1;
+
+    let idx = indexes.get(id);
+    return is.undef(idx) ? -1 : idx;
   };
 
   const getAttributeValue = (obj, attr) => {
@@ -132,7 +140,7 @@ export default function ItemsModel(config) {
   };
 
   this.setAttributes = function (id, obj) {
-    if (!isValidID(id) || !is.object(obj)) {
+    if (!is.validID(id) || !is.object(obj)) {
       return false;
     }
 
@@ -155,7 +163,7 @@ export default function ItemsModel(config) {
   };
 
   this.insert = function (parent, insertItems) {
-    if (!isValidID(parent) || !is.array(insertItems)) {
+    if (!is.validID(parent) || !is.array(insertItems)) {
       return false;
     }
 
@@ -178,23 +186,15 @@ export default function ItemsModel(config) {
         item.id = genId();
       }
 
-      arr.splice(parentIndex + 1 + idx, 0, item);
-      self.emit(`inserted-${itemName}-${item.id}`, item);
-
       const insertIndex = parentIndex + 1 + idx;
-      indexes.set(item.id, insertIndex);
-
-      indexes.forEach((value, key) => {
-        if (value >= insertIndex) {
-          indexes.set(key, value + 1);
-        }
-      });
+      arr.splice(insertIndex, 0, item);
+      self.emit(`inserted-${itemName}-${item.id}`, item);
     });
 
-    items.clear();
-
-    arr.forEach(item => {
+    self.clear();
+    arr.forEach((item, index) => {
       items.set(item.id, item);
+      indexes.set(item.id, index);
     });
 
     return true;
@@ -203,7 +203,7 @@ export default function ItemsModel(config) {
   this.upsert = this.insert;
 
   this.update = function (item) {
-    if (!is.object(item) || !isValidID(item.id)) {
+    if (!is.object(item) || !is.validID(item.id)) {
       return false;
     }
 
@@ -222,7 +222,7 @@ export default function ItemsModel(config) {
   };
 
   this.remove = function (id) {
-    if (!isValidID(id)) {
+    if (!is.validID(id)) {
       return false;
     }
 
@@ -230,13 +230,13 @@ export default function ItemsModel(config) {
       self.emit(`removed-${itemName}-${id}`);
 
       const removedIndex = indexes.get(id);
-      indexes.forEach(index => {
+      indexes.delete(id);
+      indexes.forEach((index, key) => {
         if (index >= removedIndex) {
-          indexes.set(index, index - 1);
+          indexes.set(key, index - 1);
         }
       });
 
-      indexes.delete(id);
       return true;
     }
 

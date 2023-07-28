@@ -3,6 +3,8 @@
  */
 
 const ItemsModel = require("../dist/items-model.cjs");
+const temp = [{ id: 1, name: "test1" }, { id: 2, name: "test2" }];
+const temp2 = [{ id: 3, name: "test3" }, { id: 4, name: "test4" }];
 
 describe("ItemsModel tests", () => {
   function Constructor(config) {
@@ -25,9 +27,6 @@ describe("ItemsModel tests", () => {
     itemConstructor: Constructor,
     itemName: "constructor"
   });
-
-  const temp = [{ id: 1, name: "test1" }, { id: 2, name: "test2" }];
-  const temp2 = [{ id: 3, name: "test3" }, { id: 4, name: "test4" }];
 
   describe("ItemsModel has method add", () => {
     expect(typeof basic.add).toBe("function");
@@ -66,6 +65,7 @@ describe("ItemsModel tests", () => {
       expect(basic.getAll().length).toEqual(2);
       expect(basic.getByAttribute("id", 1) instanceof Constructor).toBe(true);
       basic.insert(1, temp2);
+        console.log(basic.getIndex(1));
       expect(basic.getAll().length).toEqual(4);
       expect(basic.getByAttribute("id", 3) instanceof Constructor).toBe(true);
       expect(basic.getIndex(3)).toEqual(1);

@@ -281,12 +281,17 @@ const is = (function () {
     return typeof a === "undefined";
   };
 
+  const validID = (id) => {
+    return is.number(id) || is.string(id);
+  };
+  
   return {
     object: obj,
     number: num,
     string: str,
     array: arr,
-    undef
+    undef,
+    validID
   };
 }());
 
@@ -320,17 +325,13 @@ const updateProps = (a, b) => {
   return changed;
 };
 
-const isValidID = (id) => {
-  return is.number(id) || is.string(id);
-};
-
 function ItemsModel(config) {
   const self = this;
   Object.assign(this, new Emitter());
 
   const ItemConstructor = config.itemConstructor;
   let needsId = false;
-  if (!isValidID(ItemConstructor.prototype.id)) {
+  if (!is.validID(ItemConstructor.prototype.id)) {
     ItemConstructor.prototype.id = -1;
     needsId = true;
   }
@@ -348,9 +349,17 @@ function ItemsModel(config) {
   };
 
   const items = new Map();
+  const indexes = new Map();
 
   this.clear = function () {
     items.clear();
+    indexes.clear();
+  };
+
+  const indexItem = (id, idx) => {
+    const index = idx || items.size - 1;
+    indexes.set(id, index);
+    self.emit(`indexed-${itemName}`, `id: ${id}, index: ${index}`);
   };
 
   this.add = function (item) {
@@ -367,6 +376,8 @@ function ItemsModel(config) {
 
     items.set(item.id, item);
     self.emit(`added-${itemName}`, item);
+    indexItem(item.id);
+    
     return true;
   };
   
@@ -375,7 +386,7 @@ function ItemsModel(config) {
   };
 
   this.getAllIds = function () {
-    return Array.from(items.keys());
+    return Array.from(items.keys()).filter(key => is.string(key) || is.number(key));
   };
 
   const copy = (function () { 
@@ -398,13 +409,12 @@ function ItemsModel(config) {
   };
 
   this.getIndex = function (id) {
-    if (!isValidID(id)) {
-      return false;
+    if (!is.validID(id)) {
+      return -1;
     }
 
-    const arr = Array.from(items.entries());
-    const index = arr.findIndex(([key]) => key === id);
-    return index;
+    let idx = indexes.get(id);
+    return is.undef(idx) ? -1 : idx;
   };
 
   const getAttributeValue = (obj, attr) => {
@@ -454,7 +464,7 @@ function ItemsModel(config) {
   };
 
   this.setAttributes = function (id, obj) {
-    if (!isValidID(id) || !is.object(obj)) {
+    if (!is.validID(id) || !is.object(obj)) {
       return false;
     }
 
@@ -477,7 +487,7 @@ function ItemsModel(config) {
   };
 
   this.insert = function (parent, insertItems) {
-    if (!isValidID(parent) || !is.array(insertItems)) {
+    if (!is.validID(parent) || !is.array(insertItems)) {
       return false;
     }
 
@@ -500,14 +510,15 @@ function ItemsModel(config) {
         item.id = genId();
       }
 
-      arr.splice(parentIndex + 1 + idx, 0, item);
+      const insertIndex = parentIndex + 1 + idx;
+      arr.splice(insertIndex, 0, item);
       self.emit(`inserted-${itemName}-${item.id}`, item);
     });
 
-    items.clear();
-
-    arr.forEach(item => {
+    self.clear();
+    arr.forEach((item, index) => {
       items.set(item.id, item);
+      indexes.set(item.id, index);
     });
 
     return true;
@@ -516,7 +527,7 @@ function ItemsModel(config) {
   this.upsert = this.insert;
 
   this.update = function (item) {
-    if (!is.object(item) || !isValidID(item.id)) {
+    if (!is.object(item) || !is.validID(item.id)) {
       return false;
     }
 
@@ -535,11 +546,25 @@ function ItemsModel(config) {
   };
 
   this.remove = function (id) {
-    if (!isValidID(id)) {
+    if (!is.validID(id)) {
       return false;
     }
 
-    return items.delete(id);
+    if (items.delete(id)) {
+      self.emit(`removed-${itemName}-${id}`);
+
+      const removedIndex = indexes.get(id);
+      indexes.delete(id);
+      indexes.forEach((index, key) => {
+        if (index >= removedIndex) {
+          indexes.set(key, index - 1);
+        }
+      });
+
+      return true;
+    }
+
+    return false;
   };
 }
 

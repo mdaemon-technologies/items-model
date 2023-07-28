@@ -1,7 +1,7 @@
 {
   "name": "@mdaemon/items-model",
   "type": "module",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A basic items manipulation model",
   "main": "dist/items-model.cjs",
   "module": "dist/items-model.mjs",
@@ -14,7 +14,8 @@
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "test": "jest",
-    "watch": "jest --watchAll"
+    "watch": "jest --watchAll",
+    "pub": "npm run build && npm run test && npm publish"
   },
   "repository": {
     "type": "git",

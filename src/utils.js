@@ -19,12 +19,17 @@ const is = (function () {
     return typeof a === "undefined";
   };
 
+  const validID = (id) => {
+    return is.number(id) || is.string(id);
+  };
+  
   return {
     object: obj,
     number: num,
     string: str,
     array: arr,
-    undef
+    undef,
+    validID
   };
 }());
 
@@ -58,8 +63,5 @@ const updateProps = (a, b) => {
   return changed;
 };
 
-const isValidID = (id) => {
-  return is.number(id) || is.string(id);
-};
 
-export { is, updateProps, isValidID };
+export { is, updateProps };
