@@ -28,6 +28,10 @@ describe("ItemsModel tests", () => {
     itemName: "constructor"
   });
 
+  basic.on("indexed-constructor", (idx) => {
+    console.log("indexed-constructor", idx);
+  });
+
   describe("ItemsModel has method add", () => {
     expect(typeof basic.add).toBe("function");
 
