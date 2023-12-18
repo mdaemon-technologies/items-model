@@ -60,8 +60,12 @@ describe("ItemsModel tests", () => {
   describe("ItemsModel has method insert", () => {
     expect(typeof basic.insert).toBe("function");
 
-    it("inserts items into the items array at the given id", () => {
-      
+    it("inserts items into the items array at the given id", done => {
+      basic.once("inserted-constructor", (o) => {
+        expect(typeof o).toEqual("object");
+        done();
+      });
+
       temp.forEach(i => {
         basic.add(i);
       });
@@ -88,7 +92,17 @@ describe("ItemsModel tests", () => {
   describe("ItemsModel has method update", () => {
     expect(typeof basic.update).toBe("function");
 
-    it("updates items in the items array", () => {
+    it("updates items in the items array", done => {
+      basic.once("added-constructor", (o) => {
+        expect(typeof o).toEqual("object");
+        expect(o.name).toEqual("test1");
+      });
+
+      basic.once("indexed-constructor", str => {
+        expect(typeof str).toEqual("string");
+        done();
+      });
+
       basic.add(temp[0]);
       expect(basic.getById(1).name).toEqual("test1");
       expect(basic.update({ id: 1, name: "Updated Name!" })).toBe(true);
@@ -111,11 +125,11 @@ describe("ItemsModel tests", () => {
       basic.clear();
     });
 
-    it("emits an updated-constructor-1 event when item with id 1 is updated", done => {
+    it("emits an updated-constructor event when item is updated", done => {
       basic.add(temp[0]);
 
       const updatedItem = { id: 1, name: "Update Test" };
-      basic.once("updated-constructor-1", item => {
+      basic.once("updated-constructor", item => {
         expect(item).toEqual(updatedItem);
         done();
       });
@@ -127,7 +141,13 @@ describe("ItemsModel tests", () => {
   describe("ItemsModel has method remove", () => {
     expect(typeof basic.remove).toBe("function");
 
-    it("removes an item from the items array by the id", () => {
+    it("removes an item from the items array by the id", done => {
+      basic.once("removed-constructor", id => {
+        expect(typeof id).toEqual("number");
+        expect(id).toEqual(1)
+        done();
+      });
+
       basic.add(temp[0]);
 
       expect(basic.getById(1) instanceof Constructor).toBe(true);

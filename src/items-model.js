@@ -155,7 +155,8 @@ export default function ItemsModel(config) {
 
     if (updateProps(item, obj)){
       items.set(item.id, item);
-      self.emit(`set-${itemName}-${item.id}`, item);
+      self.emit(`set-${itemName}-${item.id}`, item); //deprecated 1.2.3
+      self.emit(`set-${itemName}`, item);
       return true;
     }
 
@@ -188,7 +189,8 @@ export default function ItemsModel(config) {
 
       const insertIndex = parentIndex + 1 + idx;
       arr.splice(insertIndex, 0, item);
-      self.emit(`inserted-${itemName}-${item.id}`, item);
+      self.emit(`inserted-${itemName}-${item.id}`, item); //deprecated 1.2.3
+      self.emit(`inserted-${itemName}`, item);
     });
 
     self.clear();
@@ -214,7 +216,8 @@ export default function ItemsModel(config) {
     let oldItem = self.getById(item.id);
     if (updateProps(oldItem, item)) {
       items.set(item.id, oldItem);
-      self.emit(`updated-${itemName}-${item.id}`, oldItem);
+      self.emit(`updated-${itemName}-${item.id}`, oldItem); //deprecated 1.2.3
+      self.emit(`updated-${itemName}`, oldItem);
       return true;
     }
 
@@ -227,7 +230,8 @@ export default function ItemsModel(config) {
     }
 
     if (items.delete(id)) {
-      self.emit(`removed-${itemName}-${id}`);
+      self.emit(`removed-${itemName}-${id}`); //deprecated 1.2.3
+      self.emit(`removed-${itemName}`, id);
 
       const removedIndex = indexes.get(id);
       indexes.delete(id);

@@ -21,7 +21,8 @@ The "items-model" provides basic methods for manipulating an array of objects ba
 
 # Web #
 ```HTML
-    <script type="text/javascript" src="/path_to_modules/dist/items-model.umd.js">
+    <script type="text/javascript" src="/path_to_modules/dist/items-model.umd.js"></script>
+    <script type="text/javascript">window.ItemsModel = window["items-model"];</script>
 ```
 
 ### ItemsModel ###
@@ -72,7 +73,8 @@ The "items-model" provides basic methods for manipulating an array of objects ba
     
   // adds a new Car to the items Map with only the config object
   carsModel.add({ make: "Honda", model: "Element", color: "gray" });
-
+  // emits "added-Car" and "indexed-Car"
+  
   // gets the internal items Map
   carsModel.getAll(); // [Car]
 
@@ -111,19 +113,25 @@ The "items-model" provides basic methods for manipulating an array of objects ba
   // returns success true or false
   carsModel.insert(0, [{ make: "Toyota", model: "Camry", color: "tan" }]); // true
   carsModel.insert(2, [{ make: "Toyota", model: "Carolla", color: "red" }]); // false because a parent of id 2
+  //emits "inserted-Car"
+
   // upsert is an alias for insert
   carsModel.upsert(1, [{ id: 0, model: "Element" }]); // true
 
-  // similar to set attributes, except the full object is expected (including the id), but it also emits an event `updated-${itemName}-${id}` with the item
+  // similar to set attributes, except the full object is expected (including the id)
   // returns success true or false
   carsModel.update({ id: 1, make: "Toyota", model: "Camry", color: "brown" }); // true
+  // emits "updated-Car"
   
   // removes the item from the internal items Map based on the id
   // returns success true or false
   carsModel.remove(1); // true
   carsModel.remove(2); // false
+  // emits "removed-Car"
 
 ```
+
+See [@mdaemon/emitter](https://github.com/mdaemon-technologies/emitter "@mdaemon/emitter") for how to details on the event emitter
 
 # License #
 
