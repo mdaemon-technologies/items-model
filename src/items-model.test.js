@@ -3,8 +3,8 @@
  */
 
 const ItemsModel = require("../dist/items-model.cjs");
-const temp = [{ id: 1, name: "test1" }, { id: 2, name: "test2" }];
-const temp2 = [{ id: 3, name: "test3" }, { id: 4, name: "test4" }];
+const temp = [{ id: 1, name: "test1", selected: false }, { id: 2, name: "test2", selected: false }];
+const temp2 = [{ id: 3, name: "test3", selected: true }, { id: 4, name: "test4", selected: true }];
 
 describe("ItemsModel tests", () => {
   function Constructor(config) {
@@ -128,13 +128,14 @@ describe("ItemsModel tests", () => {
     it("emits an updated-constructor event when item is updated", done => {
       basic.add(temp[0]);
 
-      const updatedItem = { id: 1, name: "Update Test" };
+      const updatedItem = { id: 1, name: "Update Test", selected: false };
       basic.once("updated-constructor", item => {
         expect(item).toEqual(updatedItem);
         done();
       });
 
       basic.update(updatedItem);
+      basic.clear();
     });
   });
 
@@ -188,6 +189,14 @@ describe("ItemsModel tests", () => {
     });
   });
 
+  describe("ItemsModel has method getFirstByAttribute", () => {
+    expect(typeof basic.getFirstByAttribute).toBe("function");
+
+    it("is an alias of getByAttribute", () => {
+      expect(basic.getByAttribute === basic.getFirstByAttribute).toBe(true);
+    });
+  });
+
   describe("ItemsModel has method getAllByAttribute", () => {
     expect(typeof basic.getAllByAttribute).toBe("function");
 
@@ -214,6 +223,39 @@ describe("ItemsModel tests", () => {
       expect(basic.getById(1) instanceof Constructor).toBe(true);
       expect(basic.setAttributes(1, { name: "testing setAttributes" })).toBe(true);
       expect(basic.getById(1).name).toEqual("testing setAttributes");
+
+      basic.clear();
+    });
+  });
+
+  describe("ItemsModel has method setAttributesByAttribute", () => {
+    expect(typeof basic.setAttributesByAttribute).toBe("function");
+
+    it("sets the values for all items that match the given attribution value pair with the passed object", () => {
+      temp.forEach(item => {
+        basic.add(item);
+      });
+
+      temp2.forEach(item => {
+        basic.add(item);
+      });
+
+      expect(Array.isArray(basic.setAttributesByAttribute())).toBe(true);
+      let results = basic.setAttributesByAttribute("selected", false, { selected: true });
+      expect(results.length).toBe(2);
+      results.forEach(result => {
+        Object.keys(result).forEach(id => {
+          expect(result[id]).toBe(true);
+        });
+      });
+
+      results = basic.setAttributesByAttribute("name", "test4", { selected: false });
+      expect(results.length).toBe(1);
+      results.forEach(result => {
+        Object.keys(result).forEach(id => {
+          expect(result[id]).toBe(true);
+        });
+      });      
 
       basic.clear();
     });

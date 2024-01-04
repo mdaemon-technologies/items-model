@@ -123,6 +123,8 @@ export default function ItemsModel(config) {
     return null;
   };
 
+  this.getFirstByAttribute = this.getByAttribute;
+
   this.getAllByAttribute = function (attr, val) {
     let arr = [];
     if (!is.string(attr) || is.undef(val)) {
@@ -161,6 +163,33 @@ export default function ItemsModel(config) {
     }
 
     return false;
+  };
+
+  this.setAttributesByAttribute = function (attr, val, obj) {
+    if (!is.string(attr) || !is.object(obj)) {
+      return [];
+    }
+
+    // we do not want to update an id on multiple items, because they need to be unique
+    if (obj.id) { 
+      delete obj.id;
+    }
+
+    if (Object.keys(obj).length < 1) {
+      return [];
+    }
+
+    let results = this.getAllByAttribute(attr, val).map(item => {
+      if (updateProps(item, obj)) {
+        items.set(item.id, item);
+        self.emit(`set-${itemName}`, item);
+        return { [item.id]: true };
+      }
+
+      return { [item.id]: false };
+    });
+
+    return results;
   };
 
   this.insert = function (parent, insertItems) {

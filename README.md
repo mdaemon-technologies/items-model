@@ -100,6 +100,8 @@ The "items-model" provides basic methods for manipulating an array of objects ba
   carsModel.getByAttribute("make", "Honda"); // Car
   carsModel.getByAttribute("model", "Odyssey"); // null
 
+  carsModel.getFirstByAttribute("make", "Honda"); // Car -- this is an alias for getByAttribute
+
   // gets all the items from the internal array based on an attribute/value combination
   carsModel.getAllByAttribute("make", "Honda"); // [Car]
   carsModel.getAllByAttribute("model", "Odyssey"); // []
@@ -108,6 +110,10 @@ The "items-model" provides basic methods for manipulating an array of objects ba
   // returns success true or false
   carsModel.setAttributes(0, { model: "Odyssey", color: "blue" }); // true
   carsModel.setAttributes(1, { model: "Odyssey" }); // false
+
+  // sets the values for all matching items
+  // returns an array of objects that use the id and success true or false
+  carsModel.setAttributesByAttr("model", "Odyssey", { color: "gray" }); // [{ 0: true }]
 
   // inserts or updates the passed items after the parent id
   // returns success true or false
