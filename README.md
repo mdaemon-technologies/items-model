@@ -1,3 +1,5 @@
+[![Dynamic JSON Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmdaemon-technologies%2Fitems-model%2Fmaster%2Fpackage.json&query=%24.version&prefix=v&label=npm&color=blue)](https://www.npmjs.com/package/@mdaemon/items-model) [![install size](https://packagephobia.com/badge?p=@mdaemon/items-model)](https://packagephobia.com/result?p=@mdaemon/items-model) [![Dynamic JSON Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmdaemon-technologies%2Fitems-model%2Fmaster%2Fpackage.json&query=%24.license&prefix=v&label=license&color=green)](https://github.com/mdaemon-technologies/items-model/blob/master/LICENSE) [![Node.js CI](https://github.com/mdaemon-technologies/items-model/actions/workflows/node.js.yml/badge.svg)](https://github.com/mdaemon-technologies/items-model/actions/workflows/node.js.yml)
+
 # @mdaemon/items-model, A basic items Map model library with TypeScript support
 ### Includes MDaemon's Emitter library as a dependency
 [ [@mdaemon/items-model on npm](https://www.npmjs.com/package/@mdaemon/items-model "npm") ]
