@@ -44,6 +44,22 @@ describe("ItemsModel tests", () => {
     });
   });
 
+  describe("ItemsModel has method addAll", () => {
+    expect(typeof basic.addAll).toBe("function");
+
+    it("adds an array of items to the items array", () => {
+      basic.addAll([
+        { id: 11, name: "testness1" },
+        { id: 12, name: "testness2" }
+      ]);
+
+      expect(basic.getByAttribute("id", 11) instanceof Constructor).toBe(true);
+      expect(basic.getByAttribute("id", 12) instanceof Constructor).toBe(true);
+
+      basic.clear();
+    });
+  });
+
   describe("ItemsModel has method clear", () => {
     expect(typeof basic.clear).toBe("function");
 
