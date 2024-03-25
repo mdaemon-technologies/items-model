@@ -144,3 +144,8 @@ See [@mdaemon/emitter](https://github.com/mdaemon-technologies/emitter "@mdaemon
 # License #
 
 Published under the [LGPL-2.1 license](https://github.com/mdaemon-technologies/items-model/blob/main/LICENSE "LGPL-2.1 License").
+
+Published by<br/> 
+<b>MDaemon Technologies, Ltd.<br/>
+Simple Secure Email</b><br/>
+[https://www.mdaemon.com](https://www.mdaemon.com)
