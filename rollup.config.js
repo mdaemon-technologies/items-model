@@ -8,9 +8,10 @@ export default [
   {
     input: 'src/items-model.js',
     output: {
-      name: 'items-model',
-      file: pkg.browser,
-      format: 'umd'
+      file: pkg.main,
+      format: 'umd',
+      exports: 'default',
+      name: 'ItemsModel'
     },
     plugins: [
       nodeResolve(),
@@ -21,8 +22,8 @@ export default [
   {
     input: 'src/items-model.js',
     output: [
-      { file: "dist/items-model.cjs", format: 'cjs', exports: 'default' },
-      { file: "dist/items-model.mjs", format: 'es', exports: 'default' }
+      { file: pkg.common, format: 'cjs', exports: 'default', 'name': 'ItemsModel' },
+      { file: pkg.module, format: 'es', exports: 'default', 'name': 'ItemsModel' }
     ],
     plugins: [
       nodeResolve(),

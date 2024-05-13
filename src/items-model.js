@@ -101,6 +101,8 @@ export default function ItemsModel(config) {
     arr.forEach(item => {
       self.add(item);
     });
+
+    return true;
   };
   
   /**

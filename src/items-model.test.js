@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-const ItemsModel = require("../dist/items-model.cjs");
+const ItemsModel = require("../dist/items-model.umd.js");
 const temp = [{ id: 1, name: "test1", selected: false }, { id: 2, name: "test2", selected: false }];
 const temp2 = [{ id: 3, name: "test3", selected: true }, { id: 4, name: "test4", selected: true }];
 

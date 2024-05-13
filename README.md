@@ -24,6 +24,7 @@ The "items-model" provides basic methods for manipulating an array of objects ba
 # Web #
 ```HTML
     <script type="text/javascript" src="/path_to_modules/dist/items-model.umd.js"></script>
+    <!-- necessary for versions < 2.0.0 -->
     <script type="text/javascript">window.ItemsModel = window["items-model"];</script>
 ```
 
@@ -138,6 +139,9 @@ The "items-model" provides basic methods for manipulating an array of objects ba
   // emits "removed-Car"
 
 ```
+
+## v2.0.0 ##
+<b>Breaking change:</b> Instead of window["items-model"], window.ItemsModel must be used for umd builds.
 
 See [@mdaemon/emitter](https://github.com/mdaemon-technologies/emitter "@mdaemon/emitter") for how to details on the event emitter
 
