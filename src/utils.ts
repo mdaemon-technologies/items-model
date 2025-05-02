@@ -1,25 +1,34 @@
-const is = (function () {
-  const obj = (a) => {
+interface IsInterface {
+  object: (a: any) => boolean;
+  number: (a: any) => boolean;
+  string: (a: any) => boolean;
+  array: (a: any) => boolean;
+  undef: (a: any) => boolean;
+  validID: (id: any) => boolean;
+}
+
+const is = (function (): IsInterface {
+  const obj = (a: any): boolean => {
     return typeof a === "object" && a !== null;
   };
 
-  const num = (a) => {
+  const num = (a: any): boolean => {
     return typeof a === "number";
   };
 
-  const str = (a) => {
+  const str = (a: any): boolean => {
     return typeof a === "string";
   };
 
-  const arr = (a) => {
+  const arr = (a: any): boolean => {
     return Array.isArray(a);
   };
 
-  const undef = (a) => {
+  const undef = (a: any): boolean => {
     return typeof a === "undefined";
   };
 
-  const validID = (id) => {
+  const validID = (id: any): boolean => {
     return is.number(id) || is.string(id);
   };
   
@@ -33,7 +42,7 @@ const is = (function () {
   };
 }());
 
-const updateProps = (a, b) => {
+const updateProps = (a: Record<string, any>, b: Record<string, any>): boolean => {
   let changed = false;
   if (!is.object(a) || !is.object(b)) {
     return false;
@@ -41,12 +50,12 @@ const updateProps = (a, b) => {
   
   Object.keys(b).forEach(prop => {
     if (is.object(a[prop])) {
-      changed = updateProps(a[prop], b[prop]);
+      changed = updateProps(a[prop], b[prop]) || changed;
     }
     else if (is.array(a[prop]) && is.array(b[prop])) {
-      for (var i = 0, iMax = b[prop].length; i < iMax; i++) {
+      for (let i = 0, iMax = b[prop].length; i < iMax; i++) {
         if (is.object(a[prop][i])) {
-          changed = updateProps(a[prop][i], b[prop][i]);
+          changed = updateProps(a[prop][i], b[prop][i]) || changed;
         }
         else if (a[prop][i] !== b[prop][i]) {
           a[prop][i] = b[prop][i];
@@ -62,6 +71,5 @@ const updateProps = (a, b) => {
 
   return changed;
 };
-
 
 export { is, updateProps };

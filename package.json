@@ -1,13 +1,13 @@
 {
   "name": "@mdaemon/items-model",
   "type": "module",
-  "version": "2.1.2",
+  "version": "3.0.0",
   "description": "A basic items manipulation model",
   "main": "dist/items-model.umd.js",
   "module": "dist/items-model.mjs",
   "browser": "dist/items-model.umd.js",
   "common": "dist/items-model.cjs",
-  "typings": "dist/index.d.ts",
+  "typings": "dist/items-model.d.ts",
   "publishConfig": {
     "access": "public"
   },
@@ -16,7 +16,11 @@
     "dev": "rollup -c -w",
     "test": "jest",
     "watch": "jest --watchAll",
-    "pub": "npm run build && npm run test && npm publish"
+    "pub": "npm run build && npm run test && npm publish",
+    "test:umd": "node test/umd-test.cjs",
+    "test:cjs": "node test/cjs-test.js",
+    "test:esm": "node test/esm-test.mjs",
+    "test:dist": "npm run test:umd && npm run test:cjs && npm run test:esm"
   },
   "repository": {
     "type": "git",
@@ -45,9 +49,15 @@
     "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "@types/jest": "^29.5.14",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "rollup": "^4.40.0"
+    "rollup": "^4.40.0",
+    "ts-jest": "^29.3.2",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.8.1",
+    "typescript": "^5.8.3"
   },
   "files": [
     "dist"

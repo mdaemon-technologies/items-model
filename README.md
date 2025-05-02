@@ -1,4 +1,4 @@
-[![Dynamic JSON Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmdaemon-technologies%2Fitems-model%2Fmaster%2Fpackage.json&query=%24.version&prefix=v&label=npm&color=blue)](https://www.npmjs.com/package/@mdaemon/items-model) [![Static Badge](https://img.shields.io/badge/node-v14%2B-blue?style=flat&label=node&color=blue)](https://nodejs.org) [![install size](https://packagephobia.com/badge?p=@mdaemon/items-model)](https://packagephobia.com/result?p=@mdaemon/items-model) [![Dynamic JSON Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmdaemon-technologies%2Fitems-model%2Fmaster%2Fpackage.json&query=%24.license&prefix=v&label=license&color=green)](https://github.com/mdaemon-technologies/items-model/blob/master/LICENSE) [![Node.js CI](https://github.com/mdaemon-technologies/items-model/actions/workflows/node.js.yml/badge.svg)](https://github.com/mdaemon-technologies/items-model/actions/workflows/node.js.yml)
+[![Dynamic JSON Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmdaemon-technologies%2Fitems-model%2Fmaster%2Fpackage.json&query=%24.version&prefix=v&label=npm&color=blue)](https://www.npmjs.com/package/@mdaemon/items-model) [![Static Badge](https://img.shields.io/badge/node-v14%2B-blue?style=flat&label=node&color=blue)](https://nodejs.org) [![TypeScript](https://img.shields.io/badge/TypeScript-5.0%2B-blue?logo=typescript)](https://www.typescriptlang.org/) [![install size](https://packagephobia.com/badge?p=@mdaemon/items-model)](https://packagephobia.com/result?p=@mdaemon/items-model) [![Dynamic JSON Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmdaemon-technologies%2Fitems-model%2Fmaster%2Fpackage.json&query=%24.license&prefix=v&label=license&color=green)](https://github.com/mdaemon-technologies/items-model/blob/master/LICENSE) [![Node.js CI](https://github.com/mdaemon-technologies/items-model/actions/workflows/node.js.yml/badge.svg)](https://github.com/mdaemon-technologies/items-model/actions/workflows/node.js.yml)
 
 # @mdaemon/items-model, A basic items Map model library with TypeScript support
 ### Includes MDaemon's Emitter library as a dependency
@@ -24,7 +24,7 @@ The "items-model" provides basic methods for manipulating an array of objects ba
 # Web #
 ```HTML
     <script type="text/javascript" src="/path_to_modules/dist/items-model.umd.js"></script>
-    <!-- necessary for versions < 2.0.0 -->
+<!-- necessary for versions < 2.0.0 -->
     <script type="text/javascript">window.ItemsModel = window["items-model"];</script>
 ```
 
@@ -139,6 +139,9 @@ The "items-model" provides basic methods for manipulating an array of objects ba
   // emits "removed-Car"
 
 ```
+
+## v3.0.0 ##
+<b>Breaking change:</b> The library is now written in TypeScript with full type definitions. 
 
 ## v2.0.0 ##
 <b>Breaking change:</b> Instead of window["items-model"], window.ItemsModel must be used for umd builds.

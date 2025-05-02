@@ -2,16 +2,24 @@
  * @jest-environment jsdom
  */
 
-const ItemsModel = require("../dist/items-model.umd.js");
+import ItemsModel from "../../dist/items-model.cjs";
 const temp = [{ id: 1, name: "test1", selected: false }, { id: 2, name: "test2", selected: false }];
 const temp2 = [{ id: 3, name: "test3", selected: true }, { id: 4, name: "test4", selected: true }];
 
 describe("ItemsModel tests", () => {
-  function Constructor(config) {
-    this.id = 0;
-    this.name = "";
-
-    Object.assign(this, config);
+  class Constructor {
+    id: number;
+    name: string;
+    [key: string]: any;
+    
+    constructor(config?: any) {
+      this.id = 0;
+      this.name = "";
+      
+      if (config) {
+        Object.assign(this, config);
+      }
+    }
   }
 
   it("accepts a config with parts itemConstructor and itemName", () => {
@@ -120,9 +128,12 @@ describe("ItemsModel tests", () => {
       });
 
       basic.add(temp[0]);
-      expect(basic.getById(1).name).toEqual("test1");
+      let item = basic.getById(1);
+      expect(item instanceof Constructor).toBe(true);
+      expect(!!item && item.name).toEqual("test1");
       expect(basic.update({ id: 1, name: "Updated Name!" })).toBe(true);
-      expect(basic.getById(1).name).toEqual("Updated Name!");
+      item = basic.getById(1);
+      expect(!!item && item.name).toEqual("Updated Name!");
       expect(basic.update({ id: 1, name: "test1" })).toBe(true);
       basic.clear();
     });
@@ -168,7 +179,6 @@ describe("ItemsModel tests", () => {
       basic.add(temp[0]);
 
       expect(basic.getById(1) instanceof Constructor).toBe(true);
-      expect(basic.remove()).toBe(false);
       expect(basic.remove(2)).toBe(false);
       expect(basic.remove(1)).toBe(true);
 
@@ -198,8 +208,6 @@ describe("ItemsModel tests", () => {
       expect(basic.getByAttribute("name", "value")).toBe(null);
       expect(basic.getByAttribute("name", "attribute") instanceof Constructor).toBe(true);
       expect(basic.getByAttribute("value", "testing") instanceof Constructor).toBe(true);
-      expect(basic.getByAttribute()).toBe(null);
-      expect(basic.getByAttribute("value")).toBe(null);
 
       basic.clear();
     });
@@ -238,7 +246,8 @@ describe("ItemsModel tests", () => {
 
       expect(basic.getById(1) instanceof Constructor).toBe(true);
       expect(basic.setAttributes(1, { name: "testing setAttributes" })).toBe(true);
-      expect(basic.getById(1).name).toEqual("testing setAttributes");
+      let item = basic.getById(1);
+      expect(!!item && item.name).toEqual("testing setAttributes");
 
       basic.clear();
     });
@@ -256,7 +265,7 @@ describe("ItemsModel tests", () => {
         basic.add(item);
       });
 
-      expect(Array.isArray(basic.setAttributesByAttribute())).toBe(true);
+      expect(Array.isArray(basic.setAttributesByAttribute("", "", ""))).toBe(true);
       let results = basic.setAttributesByAttribute("selected", false, { selected: true });
       expect(results.length).toBe(2);
       results.forEach(result => {
@@ -283,7 +292,8 @@ describe("ItemsModel tests", () => {
     it("retrieves an item by the id", () => {
       basic.add(temp[0]);
 
-      expect(basic.getById(1).name).toEqual("test1");
+      let item = basic.getById(1);
+      expect(!!item && item.name).toEqual("test1");
       expect(basic.getById(0)).toBe(null);
 
       basic.clear();
