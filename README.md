@@ -12,13 +12,14 @@ The "items-model" provides basic methods for manipulating an array of objects ba
 
 # Node CommonJS #
 ```javascript
-    const ItemsModel = require("@mdaemon/items-model/dist/items-model.cjs");
+const ItemsModel = require("@mdaemon/items-model/dist/items-model.cjs");
 ```
 
-# Node Modules #
-
-```javascript
-    import ItemsModel from "@mdaemon/items-model/dist/items-model.mjs";  
+# Node Modules (TypeScript/ES6) #
+```typescript
+import ItemsModel, { IItemsModelConfig, ItemObject } from "@mdaemon/items-model/dist/items-model.mjs";
+// or
+import ItemsModel from "@mdaemon/items-model/dist/items-model.mjs";  
 ```
 
 # Web #
@@ -30,113 +31,124 @@ The "items-model" provides basic methods for manipulating an array of objects ba
 
 ### ItemsModel ###
 
-```javascript
-    
-  class Car {
-    id = 0;
-    make = "";
-    model = "";
-    color = "";
-  }
-  
-  class Cars extends ItemsModel {
-    constructor() {
-      super({
-        itemConstructor: Car,
-        itemName: "Car"
-      });
+```typescript
+import ItemsModel, { ItemObject } from "@mdaemon/items-model";
+
+// TypeScript class extending ItemObject interface
+class Car implements ItemObject {
+  id: number = 0;
+  make: string = "";
+  model: string = "";
+  color: string = "";
+  [key: string]: any; // Allow additional properties
+
+  constructor(config?: any) {
+    if (config) {
+      Object.assign(this, config);
     }
   }
-  
-  // or
-  
-  // if you do not include an id attribute like below, a numbered id will be assigned
-  function Car(config) {
-    this.make = "";
-    this.model = "";
-    this.color = "";
+}
 
-    Object.assign(this, config);
-  }
-    
-  function Cars() { 
-    Object.assign(this, new ItemsModel({
+class Cars extends ItemsModel {
+  constructor() {
+    super({
       itemConstructor: Car,
       itemName: "Car"
-    }));
+    });
   }
+}
+
+// Alternative: Function-based constructor (still supported)
+// If you do not include an id attribute, a numbered id will be assigned
+function CarLegacy(config?: any) {
+  this.id = 0;
+  this.make = "";
+  this.model = "";
+  this.color = "";
+
+  if (config) {
+    Object.assign(this, config);
+  }
+}
+
+function CarsLegacy() { 
+  Object.assign(this, new ItemsModel({
+    itemConstructor: CarLegacy,
+    itemName: "Car"
+  }));
+}
     
-  const carsModel = new Cars();
+const carsModel = new Cars();
 
-  // returns the name set for the model items
-  carsModel.getName(); // "Car";
+// returns the name set for the model items
+carsModel.getName(); // "Car";
 
-  // empties the internal items Map
-  carsModel.clear(); 
-    
-  // adds a new Car to the items Map with only the config object
-  carsModel.add({ make: "Honda", model: "Element", color: "gray" });
-  // emits "added-Car" and "indexed-Car"
+// empties the internal items Map
+carsModel.clear(); 
   
-  // gets the internal items Map
-  carsModel.getAll(); // [Car]
+// adds a new Car to the items Map with only the config object
+carsModel.add({ make: "Honda", model: "Element", color: "gray" });
+// emits "added-Car" and "indexed-Car"
 
-  // gets all the ids from the items Map
-  carsModel.getAllIds();
+// gets the internal items Map
+carsModel.getAll(); // [Car]
 
-  // gets a copy of the internal items Map, so that manipulation of the items in the array do not impact the internal array
-  carsModel.getCopies(); // [Car]
+// gets all the ids from the items Map
+carsModel.getAllIds();
 
-  // gets a copy of the requested item by id, so that manipulation of the item does not impact the internal item
-  carsModel.getCopy(0); // Car
-  carsModel.getCopy(1); // null
+// gets a copy of the internal items Map, so that manipulation of the items in the array do not impact the internal array
+carsModel.getCopies(); // [Car]
 
-  // gets an item from the internal items Map based on the id
-  carsModel.getById(0); // Car
-  carsModel.getById(1); // null
+// gets a copy of the requested item by id, so that manipulation of the item does not impact the internal item
+carsModel.getCopy(0); // Car
+carsModel.getCopy(1); // null
 
-  // gets the index of a given item in the internal array
-  carsModel.getIndex(0); // 0
-  carsModel.getIndex(1); // -1
+// gets an item from the internal items Map based on the id
+carsModel.getById(0); // Car
+carsModel.getById(1); // null
 
-  // gets the first item from the internal items Map based on an attribute/value combination
-  carsModel.getByAttribute("make", "Honda"); // Car
-  carsModel.getByAttribute("model", "Odyssey"); // null
+// gets the index of a given item in the internal array
+carsModel.getIndex(0); // 0
+carsModel.getIndex(1); // -1
 
-  carsModel.getFirstByAttribute("make", "Honda"); // Car -- this is an alias for getByAttribute
+// gets the first item from the internal items Map based on an attribute/value combination
+carsModel.getByAttribute("make", "Honda"); // Car
+carsModel.getByAttribute("model", "Odyssey"); // null
 
-  // gets all the items from the internal array based on an attribute/value combination
-  carsModel.getAllByAttribute("make", "Honda"); // [Car]
-  carsModel.getAllByAttribute("model", "Odyssey"); // []
+carsModel.getFirstByAttribute("make", "Honda"); // Car -- this is an alias for getByAttribute
 
-  // sets the values passed in an object based on the id
-  // returns success true or false
-  carsModel.setAttributes(0, { model: "Odyssey", color: "blue" }); // true
-  carsModel.setAttributes(1, { model: "Odyssey" }); // false
+// gets all the items from the internal array based on an attribute/value combination
+carsModel.getAllByAttribute("make", "Honda"); // [Car]
+carsModel.getAllByAttribute("model", "Odyssey"); // []
 
-  // sets the values for all matching items
-  // returns an array of objects that use the id and success true or false
-  carsModel.setAttributesByAttr("model", "Odyssey", { color: "gray" }); // [{ 0: true }]
+// sets the values passed in an object based on the id
+// returns success true or false
+carsModel.setAttributes(0, { model: "Odyssey", color: "blue" }); // true
+carsModel.setAttributes(1, { model: "Odyssey" }); // false
 
-  // inserts or updates the passed items after the parent id
-  // returns success true or false
-  carsModel.insert(0, [{ make: "Toyota", model: "Camry", color: "tan" }]); // true
-  carsModel.insert(2, [{ make: "Toyota", model: "Carolla", color: "red" }]); // false because a parent of id 2
-  //emits "inserted-Car"
+// sets the values for all matching items
+// returns an array of objects that use the id and success true or false
+carsModel.setAttributesByAttr("model", "Odyssey", { color: "gray" }); // [{ 0: true }]
 
-  // upsert is an alias for insert
-  carsModel.upsert(1, [{ id: 0, model: "Element" }]); // true
+// inserts or updates the passed items after the parent id
+// returns success true or false
+carsModel.insert(0, [{ make: "Toyota", model: "Camry", color: "tan" }]); // true
+carsModel.insert(2, [{ make: "Toyota", model: "Carolla", color: "red" }]); // false because a parent of id 2
+//emits "inserted-Car"
 
-  // similar to set attributes, except the full object is expected (including the id)
-  // returns success true or false
-  carsModel.update({ id: 1, make: "Toyota", model: "Camry", color: "brown" }); // true
-  // emits "updated-Car"
-  
-  // removes the item from the internal items Map based on the id
-  // returns success true or false
-  carsModel.remove(1); // true
-  carsModel.remove(2); // false
-  // emits "removed-Car"
+// upsert is an alias for insert
+carsModel.upsert(1, [{ id: 0, model: "Element" }]); // true
+
+// similar to set attributes, except the full object is expected (including the id)
+// returns success true or false
+carsModel.update({ id: 1, make: "Toyota", model: "Camry", color: "brown" }); // true
+// emits "updated-Car"
+
+// removes the item from the internal items Map based on the id
+// returns success true or false
+carsModel.remove(1); // true
+carsModel.remove(2); // false
+// emits "removed-Car"
 
 ```
 
