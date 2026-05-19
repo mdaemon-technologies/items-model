@@ -1,5 +1,5 @@
 import Emitter from "@mdaemon/emitter";
-import { is, updateProps } from "./utils";
+import { is, updateProps, DANGEROUS_KEYS } from "./utils";
 
 /**
  * Interface for the configuration options of ItemsModel
@@ -35,12 +35,7 @@ export default class ItemsModel extends Emitter {
     super();
     
     this.ItemConstructor = config.itemConstructor;
-    this.needsId = false;
-    
-    if (!is.validID(this.ItemConstructor.prototype.id)) {
-      this.ItemConstructor.prototype.id = -1;
-      this.needsId = true;
-    }
+    this.needsId = !is.validID(this.ItemConstructor.prototype.id);
     
     this.itemName = config.itemName;
     this.items = new Map<string | number, ItemObject>();
@@ -110,7 +105,7 @@ export default class ItemsModel extends Emitter {
     }
     
     item = new this.ItemConstructor(item);
-    if (this.needsId && item.id === -1) {
+    if (this.needsId && !is.validID(item.id)) {
       item.id = this.genId();
     }
     
@@ -221,10 +216,17 @@ export default class ItemsModel extends Emitter {
       let val = { ...obj };
       
       for (let i = 0, iMax = attrs.length; i < iMax; i++) {
+        if (DANGEROUS_KEYS.has(attrs[i])) {
+          return undefined;
+        }
         val = val[attrs[i]];
       }
       
       return val;
+    }
+    
+    if (DANGEROUS_KEYS.has(attr)) {
+      return undefined;
     }
     
     return obj[attr];
@@ -373,7 +375,7 @@ export default class ItemsModel extends Emitter {
     const arr = Array.from(this.items.values());
     insertThese.forEach((item, idx) => {
       item = new this.ItemConstructor(item);
-      if (this.needsId && item.id === -1) {
+      if (this.needsId && !is.validID(item.id)) {
         item.id = this.genId();
       }
       

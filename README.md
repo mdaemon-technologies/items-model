@@ -90,6 +90,10 @@ carsModel.clear();
 carsModel.add({ make: "Honda", model: "Element", color: "gray" });
 // emits "added-Car" and "indexed-Car"
 
+// adds an array of items to the items Map
+carsModel.addAll([{ make: "Toyota", model: "Camry", color: "tan" }, { make: "Ford", model: "Focus", color: "white" }]);
+// emits "added-Car" and "indexed-Car" for each item
+
 // gets the internal items Map
 carsModel.getAll(); // [Car]
 
@@ -101,7 +105,7 @@ carsModel.getCopies(); // [Car]
 
 // gets a copy of the requested item by id, so that manipulation of the item does not impact the internal item
 carsModel.getCopy(0); // Car
-carsModel.getCopy(1); // null
+carsModel.getCopy(1); // undefined
 
 // gets an item from the internal items Map based on the id
 carsModel.getById(0); // Car
@@ -125,10 +129,12 @@ carsModel.getAllByAttribute("model", "Odyssey"); // []
 // returns success true or false
 carsModel.setAttributes(0, { model: "Odyssey", color: "blue" }); // true
 carsModel.setAttributes(1, { model: "Odyssey" }); // false
+// emits "set-Car"
 
 // sets the values for all matching items
 // returns an array of objects that use the id and success true or false
-carsModel.setAttributesByAttr("model", "Odyssey", { color: "gray" }); // [{ 0: true }]
+carsModel.setAttributesByAttribute("model", "Odyssey", { color: "gray" }); // [{ 0: true }]
+// emits "set-Car" for each matching item
 
 // inserts or updates the passed items after the parent id
 // returns success true or false

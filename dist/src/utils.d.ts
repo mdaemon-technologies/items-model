@@ -6,7 +6,6 @@ interface IsInterface {
     undef: (a: any) => boolean;
     validID: (id: any) => boolean;
 }
-declare const DANGEROUS_KEYS: Set<string>;
 declare const is: IsInterface;
-declare const updateProps: (a: Record<string, any>, b: Record<string, any>, depth?: number) => boolean;
-export { is, updateProps, DANGEROUS_KEYS };
+declare const updateProps: (a: Record<string, any>, b: Record<string, any>) => boolean;
+export { is, updateProps };

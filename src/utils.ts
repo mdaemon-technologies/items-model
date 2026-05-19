@@ -7,9 +7,11 @@ interface IsInterface {
   validID: (id: any) => boolean;
 }
 
+const DANGEROUS_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+
 const is = (function (): IsInterface {
   const obj = (a: any): boolean => {
-    return typeof a === "object" && a !== null;
+    return typeof a === "object" && a !== null && !Array.isArray(a);
   };
 
   const num = (a: any): boolean => {
@@ -42,20 +44,24 @@ const is = (function (): IsInterface {
   };
 }());
 
-const updateProps = (a: Record<string, any>, b: Record<string, any>): boolean => {
+const updateProps = (a: Record<string, any>, b: Record<string, any>, depth: number = 10): boolean => {
   let changed = false;
-  if (!is.object(a) || !is.object(b)) {
+  if (!is.object(a) || !is.object(b) || depth <= 0) {
     return false;
   }
   
   Object.keys(b).forEach(prop => {
+    if (DANGEROUS_KEYS.has(prop)) {
+      return;
+    }
+
     if (is.object(a[prop])) {
-      changed = updateProps(a[prop], b[prop]) || changed;
+      changed = updateProps(a[prop], b[prop], depth - 1) || changed;
     }
     else if (is.array(a[prop]) && is.array(b[prop])) {
       for (let i = 0, iMax = b[prop].length; i < iMax; i++) {
         if (is.object(a[prop][i])) {
-          changed = updateProps(a[prop][i], b[prop][i]) || changed;
+          changed = updateProps(a[prop][i], b[prop][i], depth - 1) || changed;
         }
         else if (a[prop][i] !== b[prop][i]) {
           a[prop][i] = b[prop][i];
@@ -72,4 +78,4 @@ const updateProps = (a: Record<string, any>, b: Record<string, any>): boolean =>
   return changed;
 };
 
-export { is, updateProps };
+export { is, updateProps, DANGEROUS_KEYS };
