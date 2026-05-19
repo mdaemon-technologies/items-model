@@ -1,7 +1,7 @@
 {
   "name": "@mdaemon/items-model",
   "type": "module",
-  "version": "3.0.1",
+  "version": "3.0.3",
   "description": "A basic items manipulation model",
   "main": "dist/items-model.umd.js",
   "module": "dist/items-model.mjs",
@@ -62,7 +62,14 @@
   "files": [
     "dist"
   ],
+  "exports": {
+    ".": {
+      "import": "./dist/items-model.mjs",
+      "require": "./dist/items-model.cjs",
+      "browser": "./dist/items-model.umd.js"
+    }
+  },
   "dependencies": {
-    "@mdaemon/emitter": "^2.0.7"
+    "@mdaemon/emitter": "^2.1.0"
   }
 }
