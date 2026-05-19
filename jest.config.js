@@ -1,6 +1,5 @@
-import type { Config } from 'jest';
-
-const config: Config = {
+/** @type {import('jest').Config} */
+export default {
   testEnvironment: 'jsdom',
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
@@ -9,5 +8,3 @@ const config: Config = {
     '^.+\\.tsx?$': '@swc/jest',
   },
 };
-
-export default config;
