@@ -1,7 +1,7 @@
 {
   "name": "@mdaemon/items-model",
   "type": "module",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "description": "A basic items manipulation model",
   "main": "dist/items-model.umd.js",
   "module": "dist/items-model.mjs",
@@ -44,6 +44,9 @@
     "url": "https://www.mdaemon.com"
   },
   "license": "LGPL-2.1",
+  "engines": {
+    "node": ">=18"
+  },
   "homepage": "https://github.com/mdaemon-technologies/items-model#readme",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.3",
