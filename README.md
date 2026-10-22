@@ -3,7 +3,7 @@
 [![npm](https://img.shields.io/npm/v/@mdaemon/items-model?color=blue)](https://www.npmjs.com/package/@mdaemon/items-model)
 [![license](https://img.shields.io/npm/l/@mdaemon/items-model?color=green)](LICENSE)
 [![node](https://img.shields.io/node/v/@mdaemon/items-model)](https://nodejs.org)
-[![install size](https://packagephobia.com/badge?p=@mdaemon/items-model)](https://packagephobia.com/result?p=@mdaemon/items-model)
+[![install size](https://img.shields.io/npm/unpacked-size/@mdaemon/items-model)](https://packagephobia.com/result?p=@mdaemon/items-model)
 [![CI](https://github.com/mdaemon-technologies/items-model/actions/workflows/node.js.yml/badge.svg)](https://github.com/mdaemon-technologies/items-model/actions/workflows/node.js.yml)
 
 A basic items manipulation model
