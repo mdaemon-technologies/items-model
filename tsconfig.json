@@ -1,18 +1,22 @@
 {
+  // Type-checks everything (sources, tests and the Vite/Vitest configs) without
+  // emitting. tsconfig.build.json extends this to write the declarations; Vite
+  // builds the bundles.
   "compilerOptions": {
     "target": "es2015",
     "module": "preserve",
     "moduleResolution": "bundler",
-    "declaration": true,
-    "rootDir": "./src",
-    "outDir": "./dist",
+    "resolveJsonModule": true,
     "strict": true,
-    "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    // Vite reads this when it compiles class fields; keep the assignment
+    // semantics the ES2015 target has always had.
+    "useDefineForClassFields": false,
     "removeComments": false,
-    "lib": ["es2020", "dom"]
+    "lib": ["es2020", "dom"],
+    "types": ["node", "vitest/globals"],
+    "noEmit": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/*.test.ts", "dist"]
+  "include": ["src/**/*", "vite.config.ts", "vitest.config.ts"]
 }

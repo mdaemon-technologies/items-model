@@ -1,7 +1,7 @@
 {
   "name": "@mdaemon/items-model",
   "type": "module",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "description": "A basic items manipulation model",
   "main": "dist/items-model.umd.js",
   "module": "dist/items-model.mjs",
@@ -12,15 +12,14 @@
     "access": "public"
   },
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
-    "test": "jest",
-    "watch": "jest --watchAll",
-    "pub": "npm run build && npm run test && npm publish",
-    "test:umd": "node test/umd-test.cjs",
-    "test:cjs": "node test/cjs-test.cjs",
-    "test:esm": "node test/esm-test.mjs",
-    "test:dist": "npm run test:umd && npm run test:cjs && npm run test:esm"
+    "build": "vite build && tsc -p tsconfig.build.json",
+    "dev": "vite build --watch",
+    "test": "vitest run",
+    "watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "pub": "npm run lint && npm run build && npm run typecheck && npm test && npm run test:smoke && npm publish",
+    "test:smoke": "node smoke/smoke.test.cjs && node smoke/smoke.test.mjs && node smoke/smoke.test.umd.cjs"
   },
   "repository": {
     "type": "git",
@@ -49,20 +48,20 @@
   },
   "homepage": "https://github.com/mdaemon-technologies/items-model#readme",
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^28.0.3",
-    "@rollup/plugin-node-resolve": "^16.0.1",
-    "@rollup/plugin-typescript": "^12.1.2",
-    "@swc/core": "^1.15.33",
-    "@swc/jest": "^0.2.39",
-    "jest": "^30.4.2",
-    "jest-environment-jsdom": "^30.4.1",
-    "rollup": "^4.40.0",
-    "rollup-plugin-esbuild": "^6.2.1",
-    "tslib": "^2.8.1",
-    "typescript": "^6.0.3"
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^22.20.5",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "eslint": "^10.15.0",
+    "globals": "^17.14.0",
+    "jsdom": "^31.0.1",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "typescript-eslint": "^8.73.0",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
   },
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "exports": {
     ".": {
@@ -73,6 +72,6 @@
     }
   },
   "dependencies": {
-    "@mdaemon/emitter": "^2.1.1"
+    "@mdaemon/emitter": "^3.1.0"
   }
 }

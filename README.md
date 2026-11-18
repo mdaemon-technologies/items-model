@@ -168,7 +168,16 @@ carsModel.remove(2); // false
 
 ```
 
-See [@mdaemon/emitter](https://github.com/mdaemon-technologies/emitter "@mdaemon/emitter") for how to details on the event emitter
+See [@mdaemon/emitter](https://github.com/mdaemon-technologies/emitter "@mdaemon/emitter") for details on the event emitter. ItemsModel uses emitter 3 but keeps two behaviours from emitter 2:
+
+- An exception thrown by an event handler propagates out of the method that emitted the event (`add`, `update`, `remove` and so on), and later handlers for that event do not run. Emitter 3 on its own reports it to `onError` and carries on.
+- Registering a handler again under the same event name and namespace replaces the earlier one. Emitter 3 on its own keeps both.
+
+```js
+carsModel.on("added-Car", car => console.log("first", car.id));
+carsModel.on("added-Car", car => console.log("second", car.id));
+carsModel.add({ id: 3, make: "Ford" }); // logs only "second 3"
+```
 
 ## Changelog
 

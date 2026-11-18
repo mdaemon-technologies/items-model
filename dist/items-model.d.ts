@@ -1,4 +1,5 @@
 import Emitter from "@mdaemon/emitter";
+import type { Callback } from "@mdaemon/emitter";
 /**
  * Interface for the configuration options of ItemsModel
  */
@@ -27,6 +28,20 @@ export default class ItemsModel extends Emitter {
      * @param {IItemsModelConfig} config - The configuration options for the ItemsModel.
      */
     constructor(config: IItemsModelConfig);
+    /**
+     * Registers an event handler: `register(name, func, priority?)`,
+     * `register(name, namespace, func, priority?)` or
+     * `register(name, func, namespace)`. The `on`, `subscribe` and `onMany`
+     * aliases use it too.
+     *
+     * As in @mdaemon/emitter 2, registering a handler again under the same event
+     * name and namespace replaces the earlier one, in its place among handlers of
+     * the same priority, and without counting toward the listener limit. Emitter 3
+     * would keep both. One-time handlers are not affected.
+     */
+    register(name: string, func: Callback, priority?: number): void;
+    register(name: string, namespace: string, func: Callback, priority?: number): void;
+    register(name: string, func: Callback, namespace: string): void;
     /**
      * Generates a unique ID for a new item by finding
      * the maximum ID in the existing items array and

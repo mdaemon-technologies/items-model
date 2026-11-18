@@ -103,7 +103,12 @@ typings/
 .tern-port
 
 src/
-rollup.config.js
+vite.config.ts
+vitest.config.ts
+eslint.config.js
+tsconfig.json
+tsconfig.build.json
+smoke/
 package-lock.json
 .gitattributes
 .gitignore

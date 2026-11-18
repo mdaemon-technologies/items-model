@@ -1,5 +1,24 @@
 import Emitter from "@mdaemon/emitter";
+// A separate type-only import, not `{ type Callback }`, so the emitted
+// declarations parse with TypeScript versions before 4.5.
+import type { Callback, IEvent } from "@mdaemon/emitter";
 import { is, updateProps, DANGEROUS_KEYS } from "./utils";
+
+/**
+ * The emitter's registered (not one-time) handlers, sorted by priority.
+ *
+ * Emitter 3 has no public way to replace a handler, so the `register` override
+ * below edits this list. @mdaemon/emitter is bundled into dist/ at build time,
+ * so the version whose internals this reads is fixed by the build, and
+ * src/__tests__/items-model.events.test.ts fails if a new version moves them.
+ */
+function registeredEvents(emitter: Emitter): IEvent[] {
+  const events = (emitter as unknown as { _emitter_events?: unknown })._emitter_events;
+  if (!Array.isArray(events)) {
+    throw new Error("@mdaemon/emitter no longer keeps its handlers in _emitter_events; update ItemsModel.register");
+  }
+  return events;
+}
 
 /**
  * Interface for the configuration options of ItemsModel
@@ -32,16 +51,71 @@ export default class ItemsModel extends Emitter {
    * @param {IItemsModelConfig} config - The configuration options for the ItemsModel.
    */
   constructor(config: IItemsModelConfig) {
-    super();
-    
+    // Emitter 3 catches an exception thrown by an event handler and reports it
+    // to onError. Emitter 2, which ItemsModel was built on, let it propagate out
+    // of emit(), and so out of add(), update() and the other methods that emit:
+    // later handlers did not run, and one-time handlers stayed registered.
+    // Rethrowing from onError keeps that behaviour.
+    super({ onError: (error) => { throw error; } });
+
     this.ItemConstructor = config.itemConstructor;
     this.needsId = !is.validID(this.ItemConstructor.prototype.id);
-    
+
     this.itemName = config.itemName;
     this.items = new Map<string | number, ItemObject>();
     this.indexes = new Map<string | number, number>();
   }
-  
+
+  /**
+   * Registers an event handler: `register(name, func, priority?)`,
+   * `register(name, namespace, func, priority?)` or
+   * `register(name, func, namespace)`. The `on`, `subscribe` and `onMany`
+   * aliases use it too.
+   *
+   * As in @mdaemon/emitter 2, registering a handler again under the same event
+   * name and namespace replaces the earlier one, in its place among handlers of
+   * the same priority, and without counting toward the listener limit. Emitter 3
+   * would keep both. One-time handlers are not affected.
+   */
+  register(name: string, func: Callback, priority?: number): void;
+  register(name: string, namespace: string, func: Callback, priority?: number): void;
+  register(name: string, func: Callback, namespace: string): void;
+  register(name: string, arg1: Callback | string, arg2?: Callback | string | number, arg3?: number): void {
+    const register = super.register as unknown as (...args: unknown[]) => void;
+    const callback = typeof arg1 === "function" ? arg1 : arg2;
+    const namespace = typeof arg1 === "function" ? (typeof arg2 === "string" ? arg2 : "all") : arg1;
+    const events = registeredEvents(this);
+
+    // Emitter 2 replaced the last handler with this name and namespace. A
+    // missing name or a handler that is not a function is left to emitter 3,
+    // which ignores the first and throws a TypeError for the second, before
+    // anything here changes.
+    let index = -1;
+    if (name && typeof callback === "function") {
+      for (let i = events.length - 1; i >= 0; i--) {
+        if (events[i].name === name && events[i].namespace === namespace) {
+          index = i;
+          break;
+        }
+      }
+    }
+
+    if (index === -1) {
+      register.call(this, name, arg1, arg2, arg3);
+      return;
+    }
+
+    // Take the old handler out first, so the listener limit does not count it.
+    // Emitter 3 then appends the new one and re-sorts; move it into the old
+    // handler's slot and sort again, which is what emitter 2's in-place
+    // replacement followed by its (stable) priority sort produced.
+    events.splice(index, 1);
+    register.call(this, name, arg1, arg2, arg3);
+    const added = events.findIndex(ev => ev.func === callback && ev.name === name && ev.namespace === namespace);
+    events.splice(index, 0, events.splice(added, 1)[0]);
+    events.sort((a, b) => b.priority - a.priority);
+  }
+
   /**
    * Generates a unique ID for a new item by finding
    * the maximum ID in the existing items array and 
@@ -51,8 +125,8 @@ export default class ItemsModel extends Emitter {
     if (!this.needsId) {
       return -1;
     }
-    let id = this.items.size;
-    let highestId: number = this.getAllIds().reduce((initial: number, id: number | string) => {
+    const id = this.items.size;
+    const highestId: number = this.getAllIds().reduce((initial: number, id: number | string) => {
       if (typeof id === "string") {
         return initial;
       }
@@ -174,7 +248,7 @@ export default class ItemsModel extends Emitter {
    * Returns undefined if no item with the given ID exists.
    */
   getCopy(id: string | number): ItemObject | undefined {
-    let item = this.items.get(id);
+    const item = this.items.get(id);
     return !item ? item : this.copy(item);
   }
   
@@ -198,7 +272,7 @@ export default class ItemsModel extends Emitter {
       return -1;
     }
     
-    let idx = this.indexes.get(id);
+    const idx = this.indexes.get(id);
     return typeof idx === "undefined" ? -1 : idx;
   }
   
@@ -212,7 +286,7 @@ export default class ItemsModel extends Emitter {
    */
   private getAttributeValue(obj: any, attr: string): any {
     if (attr.includes(".")) {
-      let attrs = attr.split(".").filter(str => !!str.trim());
+      const attrs = attr.split(".").filter(str => !!str.trim());
       let val = { ...obj };
       
       for (let i = 0, iMax = attrs.length; i < iMax; i++) {
@@ -244,8 +318,8 @@ export default class ItemsModel extends Emitter {
       return null;
     }
     
-    for (let item of this.items.values()) {
-      let propVal = this.getAttributeValue(item, attr);
+    for (const item of this.items.values()) {
+      const propVal = this.getAttributeValue(item, attr);
       if (propVal === val) {
         return item;
       }
@@ -268,13 +342,13 @@ export default class ItemsModel extends Emitter {
    * @returns {Array} An array of all matching items.
    */
   getAllByAttribute(attr: string, val: any): ItemObject[] {
-    let arr: ItemObject[] = [];
+    const arr: ItemObject[] = [];
     if (!is.string(attr) || is.undef(val)) {
       return arr;
     }
     
-    for (let item of this.items.values()) {
-      let propVal = this.getAttributeValue(item, attr);
+    for (const item of this.items.values()) {
+      const propVal = this.getAttributeValue(item, attr);
       if (val === propVal) {
         arr.push(item);
       }
@@ -299,7 +373,7 @@ export default class ItemsModel extends Emitter {
       return false;
     }
     
-    let item = this.getById(id);
+    const item = this.getById(id);
     if (item === null) {
       return false;
     }
@@ -335,7 +409,7 @@ export default class ItemsModel extends Emitter {
       return [];
     }
     
-    let results = this.getAllByAttribute(attr, val).map(item => {
+    const results = this.getAllByAttribute(attr, val).map(item => {
       if (updateProps(item, obj)) {
         this.items.set(item.id, item);
         this.emit(`set-${this.itemName}`, item);
@@ -360,12 +434,12 @@ export default class ItemsModel extends Emitter {
       return false;
     }
     
-    let parentIndex = this.getIndex(parent);
+    const parentIndex = this.getIndex(parent);
     if (parentIndex === -1) {
       return false;
     }
     
-    let insertThese: any[] = [];
+    const insertThese: any[] = [];
     for (let i = 0, iMax = insertItems.length; i < iMax; i++) {
       if (!this.update(insertItems[i])) {
         insertThese.push(insertItems[i]);
@@ -413,7 +487,7 @@ export default class ItemsModel extends Emitter {
       return false;
     }
     
-    let oldItem = this.getById(item.id);
+    const oldItem = this.getById(item.id);
     if (oldItem && updateProps(oldItem, item)) {
       this.items.set(item.id, oldItem);
       this.emit(`updated-${this.itemName}`, oldItem);
